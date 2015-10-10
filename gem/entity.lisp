@@ -1,30 +1,29 @@
-(in-package :game.gem)
+(in-package :gem)
 
 (defclass entity ()
   ((id :reader id
        :initarg :id
        :initform nil)
-   (prototype :reader prototype
-              :initarg :prototype
+   (prototype :initarg :prototype
               :initform nil)
-   (attr :reader attr
-         :initarg :attr
+   (attr :initarg :attr
          :initform nil)
-   (components :reader components
-               :initarg :components
+   (components :initarg :components
                :initform nil)))
 
 (defmethod print-object ((o entity) stream)
   (print-unreadable-object (o stream :type t)
     (format stream "~S" (id o))))
 
-(defmethod value ((e entity) name)
+(defmethod attr ((e entity) name)
+  "Get the value of an entity's attribute."
   (with-slots (prototype attr) e
     (or (cdr (assoc name attr))
         (and prototype
-             (value prototype name)))))
+             (attr prototype name)))))
 
-(defmethod (setf value) (value (e entity) name)
+(defmethod (setf attr) (value (e entity) name)
+  "Set the value of an entity's attribute."
   (with-slots (attr) e
     (if-let ((cell (assoc name attr)))
       (setf (cdr cell) value)
@@ -33,31 +32,18 @@
         value))))
 
 (defmethod component ((e entity) path)
+  "Retrieve the component of an entity given a path list.
+   Path is a list of component names to recurse through."
   (with-slots (components) e
     (when-let ((component (cdr (assoc (car path) components))))
       (if (cdr path)
         (component component (cdr path))
         component))))
 
-(defmethod make-entity ((e entity))
-  (with-slots (components) e
+(defmethod make-entity ((prototype entity))
+  "Create an instance of an entity from a prototype."
+  (with-slots (components) prototype
     (make-instance 'entity
-                   :prototype e
+                   :prototype prototype
                    :components (loop :for (name . component) :in components
                                      :collect (cons name (make-entity component))))))
-
-(defun get-components (spec prototypes)
-  (loop :for (name . id) :in spec
-        :for component = (gethash id prototypes)
-        :when component
-        :collect (cons name component)))
-
-(defun load-prototypes (file-path)
-  (let ((prototypes (make-hash-table)))
-    (loop :for (id . (attr c-spec)) :in (read-file file-path)
-          :for prototype = (make-instance 'entity
-                                          :id id
-                                          :attr attr
-                                          :components (get-components c-spec prototypes))
-          :do (setf (gethash id prototypes) prototype))
-    prototypes))

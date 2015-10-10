@@ -9,4 +9,5 @@
   :pathname "gem"
   :serial t
   :components ((:file "package")
-               (:file "entity")))
+               (:file "entity")
+               (:file "manager")))

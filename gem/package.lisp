@@ -6,9 +6,11 @@
         #:ax.misc.fs)
   (:nicknames #:gem)
   (:export #:entity
-           #:value
+           #:attr
            #:component
            #:make-entity
+           #:*prototype-data*
+           #:prototype
            #:load-prototypes))
 
 (in-package :gem)
