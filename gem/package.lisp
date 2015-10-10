@@ -9,7 +9,7 @@
            #:attr
            #:component
            #:make-entity
-           #:*prototype-data*
+           #:*prototype-path*
            #:prototype
            #:load-prototypes))
 

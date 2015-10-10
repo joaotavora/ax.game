@@ -7,7 +7,7 @@
              :initform nil)))
 
 (defvar *entity-manager* (make-instance 'manager))
-(defvar *prototype-data* nil)
+(defvar *prototype-path* nil)
 
 (defun prototype (id)
   "Retrieve a prototype by its ID from the manager."
@@ -29,5 +29,5 @@
 
 (defun load-prototypes ()
   "Read the prototype definition file and store each prototype in the manager."
-  (loop :for (id . (attr components)) :in (read-file *prototype-data*)
+  (loop :for (id . (attr components)) :in (read-file *prototype-path*)
         :do (setf (prototype id) (%make-prototype id attr components))))
