@@ -47,3 +47,8 @@
                    :prototype prototype
                    :components (loop :for (name . component) :in components
                                      :collect (cons name (make-entity component))))))
+
+(defmethod make-entity (prototype)
+  "Create an instance of an entity from the name of a prototype."
+  (when-let ((prototype (prototype prototype)))
+    (make-entity prototype)))
