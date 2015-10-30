@@ -11,16 +11,16 @@
            (y (- (- x) sy)))
       (vec x y sy))))
 
-(defun hex-distance (src dest)
-  (%with-vectors ((s (hex->cube src)) (d (hex->cube dest)))
+(defmethod tile-distance ((tile-type (eql 'hex)) tile target)
+  (%with-vectors ((s (hex->cube tile)) (d (hex->cube target)))
     (let ((x (abs (- sx dx)))
           (y (abs (- sy dy)))
           (z (abs (- sz dz))))
       (max x y z))))
 
-(defun hex-round (src)
-  (let* ((dest (vround (hex->cube src)))
-         (shift (vpos (v- dest src))))
+(defmethod tile-round ((tile-type (eql 'hex)) tile)
+  (let* ((dest (vround (hex->cube tile)))
+         (shift (vpos (v- dest tile))))
     (%with-vectors ((d dest) (s shift))
       (cond
         ((and (> sx sy) (> sx sz))
@@ -30,7 +30,7 @@
         (t (setf dz (- (- dx) dy)))))
     (cube->hex dest)))
 
-(defun hex-neighbor (src direction)
+(defmethod tile-neighbor ((tile-type (eql 'hex)) tile direction)
   (%with-vector (d direction)
     (let ((directions `#(,(vec 1 -1 0)
                          ,(vec 1 0 -1)
@@ -38,10 +38,10 @@
                          ,(vec -1 1 0)
                          ,(vec -1 0 1)
                          ,(vec 0 -1 1)))
-           (index (mod (+ 6 (round (/ (* 6 (atan dy dx)) (* pi 2)))) 6)))
-      (cube->hex (v+ (hex->cube src) (aref directions index))))))
+          (index (mod (+ 6 (round (/ (* 6 (atan dy dx)) (* pi 2)))) 6)))
+      (cube->hex (v+ (hex->cube tile) (aref directions index))))))
 
-(defmacro with-hex-neighbors (src &body body)
+(defmacro with-hex-neighbors (tile &body body)
   `(loop with dirs = (list :e (vec 1 0)
                            :ne (vec 1 1)
                            :nw (vec -1 1)
@@ -49,22 +49,22 @@
                            :sw (vec -1 -1)
                            :se (vec 1 -1))
          for (key dir) on dirs by #'cddr
-         for neighbor = (hex-neighbor ,src dir)
+         for neighbor = (tile-neighbor 'hex ,tile dir)
          ,@body))
 
-(defun hex-neighbors (src map-size)
+(defmethod tile-neighbors ((tile-type (eql 'hex)) tile map-size)
   (v-! map-size (vec 1 1) map-size)
-  (with-hex-neighbors src
+  (with-hex-neighbors tile
     unless (or (vminusp neighbor)
                (vminusp (v- map-size neighbor)))
     append (list key neighbor)))
 
-(defun hex-neighbors-p (src target)
-  (with-hex-neighbors src
+(defmethod tile-neighbors-p ((tile-type (eql 'hex)) tile target)
+  (with-hex-neighbors tile
     do (when (equalp target neighbor)
          (return key))))
 
-(defun hex-directions ()
+(defmethod tile-directions ((tile-type (eql 'hex)))
   (loop with slice = (/ pi 6)
         with dirs = '(:e :ne :nw :w :sw :se)
         for i from 0 to 10 by 2

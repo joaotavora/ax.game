@@ -77,14 +77,15 @@
            #:mpersp)
 
   ;; hexagon
-  (:export #:cube->hex
+  (:export #:hex
+           #:cube->hex
            #:hex->cube
-           #:hex-distance
-           #:hex-round
-           #:hex-neighbor
-           #:hex-neighbors
-           #:hex-neighbors-p
-           #:hex-directions)
+           #:tile-distance
+           #:tile-round
+           #:tile-neighbor
+           #:tile-neighbors
+           #:tile-neighbors-p
+           #:tile-directions)
   ;; util
   (:export #:move-by
            #:rotate-by

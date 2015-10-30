@@ -1,6 +1,6 @@
 (in-package :gml)
 
-(declaim (optimize (debug 0) (space 0) (speed 3)))
+(declaim (optimize (debug 3) (space 0) (speed 3)))
 
 (defvar *tolerance* 1e-7)
 
