@@ -1,4 +1,7 @@
-(in-package :gml)
+;;;; math-matrix.lisp
+;;;; tools to use and manipulate matrices
+
+(in-package :agl)
 
 (declaim (optimize (debug 3) (space 0) (speed 3)))
 
@@ -31,7 +34,7 @@
   (m33 0.0 :type single-float))
 
 (defmacro %with-matrix ((prefix matrix) &body body)
-  (let ((*package* (find-package :gml)))
+  (let ((*package* (find-package :agl)))
     `(with-accessors ((,(symbolicate prefix "00") m00)
                       (,(symbolicate prefix "01") m01)
                       (,(symbolicate prefix "02") m02)
@@ -69,9 +72,9 @@
 (set-pprint-dispatch 'matrix '%matrix-print 1)
 
 (declaim (ftype (function (matrix matrix) matrix) mcp!))
-(declaim (inline mcp!))
-(defun mcp! (src dest)
-  (%with-matrices ((s src) (d dest))
+(defun mcp! (source dest)
+  "Copy `SOURCE` matrix's values into `DEST`."
+  (%with-matrices ((s source) (d dest))
     (psetf d00 s00 d01 s01 d02 s02 d03 s03
            d10 s10 d11 s11 d12 s12 d13 s13
            d20 s20 d21 s21 d22 s22 d23 s23
@@ -79,8 +82,10 @@
   dest)
 
 (declaim (ftype (function (matrix &key (:tolerance single-float)) matrix) mstab!))
-(defun mstab! (src &key (tolerance *tolerance*))
-  (%with-matrix (m src)
+(defun mstab! (source &key (tolerance *tolerance*))
+  "Adjust any of `SOURCE` matrix's values to zero if below `TOLERANCE`.
+Destructively modifies `SOURCE`."
+  (%with-matrix (m source)
     (macrolet ((stabilize (place)
                  `(when (< (abs ,place) tolerance)
                     (setf ,place 0.0))))
@@ -100,29 +105,35 @@
       (stabilize m31)
       (stabilize m32)
       (stabilize m33)))
-  src)
+  source)
 
 (declaim (ftype (function (matrix &key (:tolerance single-float)) matrix) mstab))
-(defun mstab (src &key (tolerance *tolerance*))
-  (mstab! (mcp src) :tolerance tolerance))
+(defun mstab (source &key (tolerance *tolerance*))
+  "Adjust any of `SOURCE` matrix's values to zero if below `TOLERANCE`.
+Returns a copy of `SOURCE`."
+  (mstab! (mcp source) :tolerance tolerance))
 
 (declaim (ftype (function (matrix) matrix) mid!))
-(defun mid! (src)
-  (%with-matrix (m src)
+(defun mid! (source)
+  "Modify `SOURCE` matrix to be an identity matrix.
+Destructively modifies `SOURCE`."
+  (%with-matrix (m source)
     (psetf m00 1.0 m10 0.0 m20 0.0 m30 0.0
            m01 0.0 m11 1.0 m21 0.0 m31 0.0
            m02 0.0 m12 0.0 m22 1.0 m32 0.0
            m03 0.0 m13 0.0 m23 0.0 m33 1.0))
-  src)
+  source)
 
 (declaim (ftype (function () matrix) mid))
-(declaim (inline mid!))
 (defun mid ()
+  "Create an identity matrix."
   (mid! (mat)))
 
 (declaim (ftype (function (matrix matrix matrix) matrix) m*!))
-(defun m*! (src1 src2 dest)
-  (%with-matrices ((a src1) (b src2) (d dest))
+(defun m*! (source1 source2 dest)
+  "Multiply `SOURCE1` by `SOURCE2` modifying `DEST` with the result.
+Destructively modifies `DEST`."
+  (%with-matrices ((a source1) (b source2) (d dest))
     (psetf d00 (+ (* a00 b00) (* a10 b01) (* a20 b02) (* a30 b03))
            d10 (+ (* a00 b10) (* a10 b11) (* a20 b12) (* a30 b13))
            d20 (+ (* a00 b20) (* a10 b21) (* a20 b22) (* a30 b23))
@@ -142,31 +153,36 @@
   dest)
 
 (declaim (ftype (function (matrix matrix) matrix) m*))
-(defun m* (src1 src2)
-  (m*! src1 src2 (mat)))
+(defun m* (source1 source2)
+  "Multiply `SOURCE` by `SOURCE2`."
+  (m*! source1 source2 (mat)))
 
 (declaim (ftype (function (matrix matrix) matrix) mcprot!))
-(declaim (inline mcprot!))
-(defun mcprot! (src dest)
-  (%with-matrices ((s src) (d dest))
+(defun mcprot! (source dest)
+  "Copy the 3x3 rotation matrix of `SOURCE` into `DEST`.
+Destructively modifies `DEST`,"
+  (%with-matrices ((s source) (d dest))
     (psetf d00 s00 d10 s10 d20 s20
            d01 s01 d11 s11 d21 s21
            d02 s02 d12 s12 d22 s22))
   dest)
 
 (declaim (ftype (function (matrix) matrix) mcprot))
-(defun mcprot (src)
-  (mcprot! src (mid)))
+(defun mcprot (source)
+  "Copy the 3x3 rotation matrix of `SOURCE` into a new matrix."
+  (mcprot! source (mid)))
 
 (declaim (ftype (function (vec matrix matrix) matrix) mrot!))
-(defun mrot! (vec src dest)
+(defun mrot! (vec source dest)
+  "Rotate matrix `SOURCE` by the amount in radians of each axis specified by `VEC`.
+Destructively modified `DEST`."
   (let ((rotation (mid)))
     (macrolet ((rot (axis s c &body body)
                  `(let ((,s (sin ,axis))
                         (,c (cos ,axis)))
                     ,@body
-                    (m*! src rotation dest)
-                    (mcprot! dest src))))
+                    (m*! source rotation dest)
+                    (mcprot! dest source))))
       (%with-matrix (m rotation)
         (rot (vz vec) s c
           (psetf m00 c
@@ -193,28 +209,33 @@
                  m20 s
                  m21 0.0
                  m22 c)))))
-  (mstab! src))
+  (mstab! source))
 
 (declaim (ftype (function (vec matrix) matrix) mrot))
-(defun mrot (vec src)
-  (mrot! vec src (mid)))
+(defun mrot (vec source)
+  "Rotate matrix `SOURCE` by the amount in radians of each axis specified by `VEC`."
+  (mrot! vec source (mid)))
 
 (declaim (ftype (function (vec matrix) matrix) mtrans!))
-(declaim (inline mtrans!))
-(defun mtrans! (vec src)
-  (%with-matrix (m src)
+(defun mtrans! (vec source)
+  "Translate matrix `SOURCE` by the amounts specified by each axis in `VEC`.
+Destructively modified `SOURCE`."
+  (%with-matrix (m source)
     (psetf m30 (vx vec)
            m31 (vy vec)
            m32 (vz vec)))
-  src)
+  source)
 
 (declaim (ftype (function (vec) matrix) mtrans))
 (defun mtrans (vec)
+  "Translate a new matrix by the amounts specified by each axis in `VEC`."
   (mtrans! vec (mid)))
 
 (declaim (ftype (function (matrix float vec) matrix) mrota!))
-(defun mrota! (src angle axis)
-  (%with-matrix (m src)
+(defun mrota! (source angle axis)
+  "Rotate matrix `SOURCE` around the vector `AXIS` by the specified `ANGLE` in radians.
+Destructively modifies `SOURCE`."
+  (%with-matrix (m source)
     (%with-vector (v (vnorm axis))
       (let* ((c (cos angle))
              (1-c (- 1.0 c))
@@ -235,28 +256,33 @@
                m31 0.0
                m32 0.0
                m33 1.0)
-        (mstab! src)))))
+        (mstab! source)))))
 
-(declaim (ftype (function (matrix float vec) matrix) mrota))
-(defun mrota (src angle axis)
+(declaim (ftype (function (float vec) matrix) mrota))
+(defun mrota (angle axis)
+  "Rotate a new matrix around the vector `AXIS` by the specified `ANGLE` in radians."
   (mrota! (mid) angle axis))
 
 (declaim (ftype (function (vec matrix) vec) mgettrans!))
-(declaim (inline mgettrans!))
-(defun mgettrans! (vec src)
-  (%with-matrix (m src)
+(defun mgettrans! (vec source)
+  "Copy the translation vector of matrix `SOURCE` into `VEC`.
+Destructively modified `VEC`."
+  (%with-matrix (m source)
     (psetf (vx vec) m30
            (vy vec) m31
            (vz vec) m32))
   vec)
 
 (declaim (ftype (function (matrix) vec) mgettrans))
-(defun mgettrans (src)
-  (mgettrans! (vec) src))
+(defun mgettrans (source)
+  "Copy the translation vector of matrix `SOURCE` into a new vector."
+  (mgettrans! (vec) source))
 
 (declaim (ftype (function (matrix vec vec) vec) mapply!))
-(defun mapply! (src point dest)
-  (%with-matrix (m src)
+(defun mapply! (source point dest)
+  "Multiply the matrix `SOURCE` by the vector `POINT`, storing the result into vector `DEST`.
+Destructively modifies `DEST`."
+  (%with-matrix (m source)
     (%with-vector (v dest)
       (psetf vx (+ (* m00 (vx point))
                    (* m10 (vy point))
@@ -273,14 +299,16 @@
   dest)
 
 (declaim (ftype (function (matrix vec) vec) mapply))
-(declaim (inline mapply!))
-(defun mapply (src point)
-  (mapply! src point (vec)))
+(defun mapply (source point)
+  "Multiply the matrix `SOURCE` by the vector `POINT`, storing the result into a new vector."
+  (mapply! source point (vec)))
 
 (declaim (ftype (function (matrix matrix) matrix) minvt!))
-(defun minvt! (src dest)
-  (let ((dest (mcp src)))
-    (mcp! src dest)
+(defun minvt! (source dest)
+  "Invert matrix `SOURCE`, storing the result into `DEST`.
+Destructively modifies `DEST`."
+  (let ((dest (mcp source)))
+    (mcp! source dest)
     (%with-matrix (d dest)
       (rotatef d10 d01)
       (rotatef d20 d02)
@@ -291,11 +319,14 @@
   (mstab! dest))
 
 (declaim (ftype (function (matrix) matrix) minvt))
-(defun minvt (src)
-  (minvt! src (mat)))
+(defun minvt (source)
+  "Invert matrix `SOURCE`, storing the result into a new matrix."
+  (minvt! source (mat)))
 
-(defun mgetrot (src &key axis)
-  (%with-matrix (m src)
+(defun mgetrot (source &key axis)
+  "Get the vector specified by `AXIS` of the 3x3 rotation sub-matrix of matrix `SOURCE`.
+If no `AXIS` is specified, returns the 3x3 rotation matrix."
+  (%with-matrix (m source)
     (let ((x (vec m00 m01 m02))
           (y (vec m10 m11 m12))
           (z (vec m20 m21 m22)))
@@ -307,6 +338,7 @@
 
 (declaim (ftype (function (vec vec vec) matrix) mview))
 (defun mview (eye target up)
+  "Create a view matrix."
   (let* ((dest (mid))
          (f (vnorm (v- target eye)))
          (s (vnorm (vcross f up)))
@@ -327,6 +359,7 @@
     dest))
 
 (defun mpersp (fov aspect near far)
+  "Create a perspective projection matrix."
   (let ((dest (mid))
         (f (float (/ (tan (/ fov 2))) 1.0))
         (z (- near far)))

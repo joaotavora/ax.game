@@ -1,11 +1,12 @@
 (in-package :cl-user)
 
-(defpackage #:ax.game.mathlib
+(defpackage #:ax.game
   (:use #:cl
-        #:alexandria)
-  (:nicknames #:gml)
+        #:alexandria
+        #:ax.misc.fs)
+  (:nicknames #:agl)
 
-  ;; vector
+  ;; math
   (:export #:vec
            #:vx
            #:vy
@@ -33,8 +34,6 @@
            #:vpos
            #:vneg!
            #:vneg
-           #:vrev!
-           #:vrev
            #:vcross!
            #:vcross
            #:vdot
@@ -47,10 +46,7 @@
            #:vdirp
            #:vparp
            #:vplusp
-           #:vminusp)
-
-  ;; matrix
-  (:export #:mcp!
+           #:vminusp
            #:mcp
            #:mstab!
            #:mstab
@@ -74,20 +70,8 @@
            #:minvt
            #:mgetrot
            #:mview
-           #:mpersp)
-
-  ;; hexagon
-  (:export #:hex
-           #:cube->hex
-           #:hex->cube
-           #:tile-distance
-           #:tile-round
-           #:tile-neighbor
-           #:tile-neighbors
-           #:tile-neighbors-p
-           #:tile-directions)
-  ;; util
-  (:export #:move-by
+           #:mpersp
+           #:move-by
            #:rotate-by
            #:rpms->radians
            #:set-direction
@@ -97,6 +81,24 @@
            #:line-plane-intersect
            #:point-line-distance
            #:frustum-planes
-           #:point-in-frustum-p))
+           #:point-in-frustum-p)
 
-(in-package :gml)
+  ;; grid
+  (:export #:tile-distance
+           #:tile-round
+           #:tile-neighbor
+           #:tile-neighbors
+           #:tile-neighbors-p
+           #:tile-directions
+           #:hex
+           #:cube->hex
+           #:hex->cube)
+
+  ;; entity
+  (:export #:entity
+           #:attr
+           #:component
+           #:make-entity
+           #:*prototype-path*
+           #:prototype
+           #:load-prototypes))

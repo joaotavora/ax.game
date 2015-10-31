@@ -1,4 +1,4 @@
-(in-package :gml)
+(in-package :agl)
 
 (defun move-by (vec mat &key continuep)
   (unless (vzerop vec)

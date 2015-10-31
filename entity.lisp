@@ -1,4 +1,4 @@
-(in-package :gem)
+(in-package :agl)
 
 (defclass entity ()
   ((id :reader id
