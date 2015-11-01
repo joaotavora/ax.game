@@ -1,15 +1,14 @@
 (in-package :agl)
 
-(defun cardinal->cube (direction)
-  "Convert a cardinal direction to cube coordinates."
-  (let ((dirs (list :e (vec 1 -1 0)
-                    :ne (vec 1 0 -1)
-                    :n  (vec 0 1 0)
-                    :nw (vec 0 1 -1)
-                    :w (vec -1 1 0)
-                    :sw (vec -1 0 1)
-                    :s (vec 0 -1 0)
-                    :se (vec 0 -1 1))))
+(defun cardinal->direction (direction)
+  "Convert a cardinal direction to a vector representation.
+`DIRECTION` is a keyword sumbol specifying a cardinal direction, such as `:SE`."
+  (let ((dirs (list :e (vec 1 0)
+                    :ne (vec 1 1)
+                    :nw (vec -1 1)
+                    :w (vec -1 0)
+                    :sw (vec -1 -1)
+                    :se (vec 1 -1))))
     (getf dirs direction)))
 
 (defgeneric tile-distance (tile-type source dest)

@@ -19,7 +19,7 @@
       (max x y z))))
 
 (defmethod tile-neighbor ((tile-type (eql 'hex)) tile direction)
-  (%with-vector (d (cardinal->cube direction))
+  (%with-vector (d (cardinal->direction direction))
     (let ((directions `#(,(vec 1 -1 0)
                          ,(vec 1 0 -1)
                          ,(vec 0 1 -1)
