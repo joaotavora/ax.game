@@ -5,11 +5,16 @@
 `DIRECTION` is a keyword sumbol specifying a cardinal direction, such as `:SE`."
   (let ((dirs (list :e (vec 1 0)
                     :ne (vec 1 1)
+                    :n (vec 0 1)
                     :nw (vec -1 1)
                     :w (vec -1 0)
                     :sw (vec -1 -1)
+                    :s (vec 0 -1)
                     :se (vec 1 -1))))
     (getf dirs direction)))
+
+(defgeneric possible-directions (tile-type)
+  (:documentation "Return a list of possible directions for the specified `TILE-TYPE`."))
 
 (defgeneric tile-distance (tile-type source dest)
   (:documentation "Calculate the distance in tiles between `SOURCE` and `DEST`."))
@@ -26,6 +31,12 @@ Returns a plist mapping cardinal directions to tile coordinates."))
 (defgeneric tile-neighbors-p (tile-type tile target)
   (:documentation "Tests whether `TARGET` neighbors tile `TILE`."))
 
-(defgeneric tile-directions (tile-type)
-  (:documentation "Get a list of directions each side of the specified `TILE-TYPE` faces.
-Returns a plist mapping cardinal directions to directional vectors."))
+(defun tile-directions (tile-type)
+  "Get a list of directions each side of the specified `TILE-TYPE` faces.
+Returns a plist mapping cardinal directions to directional vectors."
+  (loop with dirs = (possible-directions tile-type)
+        with slice = (/ pi (length dirs))
+        for i from 0 to (- (* (length dirs) 2) 2) by 2
+        for dir in dirs
+        for radians = (* i slice)
+        append (list dir (vstab (vec (cos radians) (sin radians))))))

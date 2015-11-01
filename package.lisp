@@ -84,15 +84,17 @@
            #:point-in-frustum-p)
 
   ;; grid
-  (:export #:tile-distance
-           #:tile-round
+  (:export #:cardinal->direction
+           #:possible-directions
+           #:tile-distance
            #:tile-neighbor
            #:tile-neighbors
            #:tile-neighbors-p
            #:tile-directions
            #:hex
            #:cube->hex
-           #:hex->cube)
+           #:hex->cube
+           #:square)
 
   ;; entity
   (:export #:entity

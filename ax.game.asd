@@ -13,5 +13,6 @@
                (:file "math-util")
                (:file "grid")
                (:file "grid-hex")
+               (:file "grid-square")
                (:file "entity")
                (:file "entity-manager")))
