@@ -10,6 +10,13 @@
   (:documentation "Get the neighbor of `TILE` specified by `DIRECTION`.
 `DIRECTION` is a keyword symbol specifying a cardinal direction, such as `:SE`."))
 
+(defun tile-penalty (tile-type facing dir)
+  "Penalty applied to moving to a tile of type `TILE-TYPE`, depending on the `FACING`
+direction of an agent, and the direction to move.
+`FACING` is a keyword symbol specifying a cardinal direction, such as `:SE`."
+  (let ((angle (get-angle (getf (tile-directions tile-type) facing) dir (vec))))
+    (/ (1+ (round (abs angle))) 10)))
+
 (defun cardinal->direction (direction)
   "Convert a cardinal direction to a vector representation.
 `DIRECTION` is a keyword sumbol specifying a cardinal direction, such as `:SE`."

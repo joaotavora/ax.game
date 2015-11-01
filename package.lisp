@@ -3,6 +3,7 @@
 (defpackage #:ax.game
   (:use #:cl
         #:alexandria
+        #:cl-heap
         #:ax.misc.fs)
   (:nicknames #:agl)
 
@@ -91,10 +92,16 @@
            #:tile-neighbors
            #:tile-neighbors-p
            #:tile-directions
+           #:tile-penalty
            #:hex
            #:cube->hex
            #:hex->cube
            #:square)
+
+  ;; path
+  (:export #:agent
+           #:find-path
+           #:a*)
 
   ;; entity
   (:export #:entity

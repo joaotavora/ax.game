@@ -5,6 +5,7 @@
   :version "0.1"
   :license "MIT"
   :depends-on (#:alexandria
+               #:cl-heap
                #:ax.misc.fs)
   :serial t
   :components ((:file "package")
@@ -14,5 +15,7 @@
                (:file "grid")
                (:file "grid-hex")
                (:file "grid-square")
+               (:file "path")
+               (:file "path-astar")
                (:file "entity")
                (:file "entity-manager")))
