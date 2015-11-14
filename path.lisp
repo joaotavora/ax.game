@@ -13,6 +13,9 @@
    (facing :accessor facing
            :initarg :facing
            :initform :e)
+   (goal :reader goal
+         :initarg :goal
+         :initform (vec))
    (graph-size :reader graph-size
                :initarg :graph-size
                :initform (vec 1024 1024))))

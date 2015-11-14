@@ -39,7 +39,7 @@
 (declaim (ftype (function (vec &key (:tolerance single-float)) vec) vstab!))
 (defun vstab! (source &key (tolerance *tolerance*))
   "Adjust any of `SOURCE` vector's values to zero if below `TOLERANCE`.
-Destructively modified `SOURCE`."
+Destructively modifies `SOURCE`."
   (%with-vector (s source)
     (macrolet ((stabilize (place)
                  `(when (< (abs ,place) tolerance)

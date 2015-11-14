@@ -1,10 +1,10 @@
 (in-package :ax.game)
 
-(defmethod find-path ((algorithm (eql 'a*)) tile-type agent goal)
+(defmethod find-path ((algorithm (eql 'a*)) tile-type agent)
   (let ((reachable (make-instance 'priority-queue))
         (costs (make-hash-table :test 'equalp))
         (parents (make-hash-table :test 'equalp)))
-    (with-slots (coords facing) agent
+    (with-slots (coords facing goal) agent
       (flet ((pick-node (node)
                (loop with edges = (graph-edges tile-type node agent)
                      for (dir-key dest) on edges by #'cddr

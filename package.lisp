@@ -103,6 +103,10 @@
            #:find-path
            #:a*)
 
+  ;; maze
+  (:export #:neighbors
+           #:carve)
+
   ;; entity
   (:export #:entity
            #:attr
