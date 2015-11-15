@@ -17,7 +17,5 @@
                (:file "grid-square")
                (:file "path")
                (:file "path-astar")
-               (:file "maze")
-               (:file "maze-square")
                (:file "entity")
                (:file "entity-manager")))
