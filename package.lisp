@@ -105,6 +105,7 @@
 
   ;; entity
   (:export #:entity
+           #:attrs
            #:attr
            #:component
            #:make-entity

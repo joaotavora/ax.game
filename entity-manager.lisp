@@ -17,11 +17,11 @@
   "Store a prototype with a reference of ID in the manager."
   (setf (gethash id (prototypes *entity-manager*)) prototype))
 
-(defun %make-prototype (id attr components)
+(defun %make-prototype (id attrs components)
   "Make a prototype suitable for storing in the manager."
   (make-instance 'entity
                  :id id
-                 :attr attr
+                 :attrs attrs
                  :components (loop :for (name . id) :in components
                                    :for component = (prototype id)
                                    :when component
@@ -29,5 +29,5 @@
 
 (defun load-prototypes ()
   "Read the prototype definition file and store each prototype in the manager."
-  (loop :for (id . (attr components)) :in (read-file *prototype-path*)
-        :do (setf (prototype id) (%make-prototype id attr components))))
+  (loop :for (id . (attrs components)) :in (read-file *prototype-path*)
+        :do (setf (prototype id) (%make-prototype id attrs components))))

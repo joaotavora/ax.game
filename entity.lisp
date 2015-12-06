@@ -6,8 +6,8 @@
        :initform nil)
    (prototype :initarg :prototype
               :initform nil)
-   (attr :initarg :attr
-         :initform nil)
+   (attrs :initarg :attrs
+          :initform nil)
    (components :initarg :components
                :initform nil)))
 
@@ -15,20 +15,26 @@
   (print-unreadable-object (o stream :type t)
     (format stream "~S" (id o))))
 
+(defmethod attrs ((e entity))
+  "Get a property list of an entity's attributes."
+  (loop for (attr . value) in (slot-value e 'attrs)
+        collect (make-keyword attr)
+        collect value))
+
 (defmethod attr ((e entity) name)
   "Get the value of an entity's attribute."
-  (with-slots (prototype attr) e
-    (or (cdr (assoc name attr))
+  (with-slots (prototype attrs) e
+    (or (cdr (assoc name attrs))
         (and prototype
              (attr prototype name)))))
 
 (defmethod (setf attr) (value (e entity) name)
   "Set the value of an entity's attribute."
-  (with-slots (attr) e
-    (if-let ((cell (assoc name attr)))
+  (with-slots (attrs) e
+    (if-let ((cell (assoc name attrs)))
       (setf (cdr cell) value)
       (progn
-        (push (cons name value) attr)
+        (push (cons name value) attrs)
         value))))
 
 (defmethod component ((e entity) path)
