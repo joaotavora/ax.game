@@ -122,4 +122,10 @@
            #:mouse-down
            #:mouse-up
            #:mouse-move
-           #:mouse-scroll))
+           #:mouse-scroll)
+
+  ;; frame
+  (:export #:frame
+           #:dt
+           #:accumulator
+           #:step-frame))

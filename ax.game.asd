@@ -20,4 +20,5 @@
                (:file "path-astar")
                (:file "entity")
                (:file "entity-manager")
-               (:file "input")))
+               (:file "input")
+               (:file "frame")))
