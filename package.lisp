@@ -4,6 +4,7 @@
   (:use #:cl
         #:alexandria
         #:cl-heap
+        #:sdl2.kit
         #:ax.misc.fs)
   (:nicknames #:agl)
 
@@ -111,4 +112,14 @@
            #:make-entity
            #:*prototype-path*
            #:prototype
-           #:load-prototypes))
+           #:load-prototypes)
+
+  ;; input
+  (:export #:get-key-name
+           #:key-down
+           #:key-up
+           #:mouse-coords
+           #:mouse-down
+           #:mouse-up
+           #:mouse-move
+           #:mouse-scroll))

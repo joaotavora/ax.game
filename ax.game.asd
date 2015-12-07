@@ -6,6 +6,7 @@
   :license "MIT"
   :depends-on (#:alexandria
                #:cl-heap
+               #:sdl2kit
                #:ax.misc.fs)
   :serial t
   :components ((:file "package")
@@ -18,4 +19,5 @@
                (:file "path")
                (:file "path-astar")
                (:file "entity")
-               (:file "entity-manager")))
+               (:file "entity-manager")
+               (:file "input")))
